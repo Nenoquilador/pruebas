@@ -2,49 +2,48 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Verificador de API Universal</title>
+    <title>Chat con API</title>
     <style>
-        body { font-family: 'Consolas', monospace; background: #0d1117; color: #c9d1d9; display: flex; justify-content: center; padding: 50px; }
-        .card { background: #161b22; border: 1px solid #30363d; padding: 25px; border-radius: 10px; width: 500px; }
-        input { width: 100%; padding: 10px; margin: 10px 0; background: #0d1117; border: 1px solid #30363d; color: #58a6ff; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #238636; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        button:hover { background: #2ea043; }
-        pre { background: #000; padding: 15px; border-radius: 5px; color: #7ee787; overflow-x: auto; font-size: 13px; border: 1px dashed #30363d; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .chat-box { background: white; width: 400px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h3 { color: #0070f3; margin-top: 0; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 20px; box-sizing: border-box; outline: none; margin-bottom: 10px; }
+        button { width: 100%; padding: 10px; background: #0070f3; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: bold; }
+        .answer { margin-top: 20px; padding: 15px; background: #e7f3ff; color: #0056b3; border-radius: 10px; display: none; font-weight: 500; }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h3>🔍 API Tester (Vercel)</h3>
-    <p style="font-size: 12px; color: #8b949e;">Escribe cualquier pregunta para verificar el procesamiento de datos:</p>
-    
-    <input type="text" id="preguntaInput" placeholder="Escribe algo aquí...">
-    <button onclick="enviarPeticion()">Consultar API</button>
-
-    <h4>Respuesta del Servidor:</h4>
-    <pre id="output">Esperando interacción...</pre>
+<div class="chat-box">
+    <h3>Pregúntale a tu API</h3>
+    <input type="text" id="userInput" placeholder="Escribe un hola o una pregunta...">
+    <button onclick="preguntar()">Enviar Mensaje</button>
+    <div id="msg" class="answer"></div>
 </div>
 
 <script>
-    async function enviarPeticion() {
-        const out = document.getElementById('output');
-        const txt = document.getElementById('preguntaInput').value;
-        const token = "AQ.Ab8RN6KqCTo6ecjtCkzvrvU9AKhEWIU_ph-PZ55u_JoJGAmilA";
+    async function preguntar() {
+        const div = document.getElementById('msg');
+        const input = document.getElementById('userInput').value;
+        
+        if(!input) return;
 
-        if(!txt) return out.innerText = "Escribe algo primero...";
-
-        out.innerText = "Procesando...";
+        div.style.display = "block";
+        div.innerText = "Pensando...";
 
         try {
             const res = await fetch('/api/check', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: token, pregunta: txt })
+                body: JSON.stringify({ 
+                    token: "AQ.Ab8RN6KqCTo6ecjtCkzvrvU9AKhEWIU_ph-PZ55u_JoJGAmilA", 
+                    pregunta: input 
+                })
             });
             const data = await res.json();
-            out.innerText = JSON.stringify(data, null, 4);
-        } catch (err) {
-            out.innerText = "Error: Verifica que el servidor esté activo.";
+            div.innerText = data.respuesta; // Aquí ya no hay JSON técnico, solo la frase
+        } catch (e) {
+            div.innerText = "Error de conexión con la API.";
         }
     }
 </script>
