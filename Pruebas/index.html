@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>UniProfile - Vercel API</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a1a; color: white; }
+        .card { background: #2a2a2a; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
+        button { background: #0070f3; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        #status { margin-top: 15px; color: #00ff00; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Validar API en Vercel</h2>
+    <button onclick="llamarVercel()">Ejecutar Check</button>
+    <div id="status"></div>
+</div>
+
+<script>
+    async function llamarVercel() {
+        const div = document.getElementById('status');
+        div.innerText = "Conectando...";
+        
+        try {
+            // En Vercel, las funciones en /api/ se llaman directamente
+            const res = await fetch('/api/check', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: "AQ.Ab8RN6KqCTo6ecjtCkzvrvU9AKhEWIU_ph-PZ55u_JoJGAmilA" })
+            });
+            const data = await res.json();
+            div.innerText = data.message || data.error;
+        } catch (e) {
+            div.innerText = "Error de conexión";
+        }
+    }
+</script>
+
+</body>
+</html>
