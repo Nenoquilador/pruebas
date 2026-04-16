@@ -2,38 +2,127 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>UniProfile - Vercel API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UniProfile - API Tester</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; background: #1a1a1a; color: white; }
-        .card { background: #2a2a2a; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); text-align: center; }
-        button { background: #0070f3; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        #status { margin-top: 15px; color: #00ff00; }
+        :root {
+            --primary: #0070f3;
+            --bg: #121212;
+            --card: #1e1e1e;
+            --text: #ffffff;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 { margin-top: 0; color: var(--primary); font-size: 1.5rem; }
+        .input-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #aaa; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #252525;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover { background: #0056b3; transform: translateY(-2px); }
+        .result-area {
+            margin-top: 1.5rem;
+            padding: 15px;
+            background: #000;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.85rem;
+            min-height: 50px;
+            border-left: 4px solid var(--primary);
+            white-space: pre-wrap;
+            color: #00ff00;
+        }
     </style>
 </head>
 <body>
 
-<div class="card">
-    <h2>Validar API en Vercel</h2>
-    <button onclick="llamarVercel()">Ejecutar Check</button>
-    <div id="status"></div>
+<div class="container">
+    <h2>Consola de API</h2>
+    
+    <div class="input-group">
+        <label>Token de Acceso</label>
+        <input type="text" id="token" value="AQ.Ab8RN6KqCTo6ecjtCkzvrvU9AKhEWIU_ph-PZ55u_JoJGAmilA" readonly>
+    </div>
+
+    <div class="input-group">
+        <label>¿Qué quieres preguntarle a la API?</label>
+        <input type="text" id="query" placeholder="Ej: ¿Estado del servidor? o GetUser:1">
+    </div>
+
+    <button onclick="consultarAPI()">Enviar Consulta</button>
+
+    <div id="result" class="result-area">Esperando comando...</div>
 </div>
 
 <script>
-    async function llamarVercel() {
-        const div = document.getElementById('status');
-        div.innerText = "Conectando...";
-        
+    async function consultarAPI() {
+        const resultDiv = document.getElementById('result');
+        const queryValue = document.getElementById('query').value;
+        const tokenValue = document.getElementById('token').value;
+
+        if (!queryValue) {
+            resultDiv.innerText = "Por favor, escribe algo para preguntar.";
+            return;
+        }
+
+        resultDiv.innerText = "Enviando petición...";
+
         try {
-            // En Vercel, las funciones en /api/ se llaman directamente
-            const res = await fetch('/api/check', {
+            // Cambia esta URL por la de tu endpoint en Vercel o localhost
+            const response = await fetch('/api/check', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: "AQ.Ab8RN6KqCTo6ecjtCkzvrvU9AKhEWIU_ph-PZ55u_JoJGAmilA" })
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    token: tokenValue,
+                    pregunta: queryValue
+                })
             });
-            const data = await res.json();
-            div.innerText = data.message || data.error;
-        } catch (e) {
-            div.innerText = "Error de conexión";
+
+            const data = await response.json();
+            resultDiv.innerText = JSON.stringify(data, null, 2);
+        } catch (error) {
+            resultDiv.style.color = "#ff4444";
+            resultDiv.innerText = "Error: No se pudo conectar con la API.";
         }
     }
 </script>
